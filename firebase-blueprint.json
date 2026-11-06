@@ -1,0 +1,87 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with role and department information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 128 },
+        "departmentCode": { "type": "string", "maxLength": 32 },
+        "departmentName": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "enum": ["ADMIN", "QMR", "LEAD_AUDITOR", "AUDITOR", "AUDITEE", "TECHNICAL_EXPERT"] },
+        "title": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["id", "email", "name", "role"]
+    },
+    "AuditState": {
+      "title": "AuditState",
+      "description": "Full synchronized audit management state for Vet Superior Consultant IQA",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "annualPlanHeader": { "type": "object" },
+        "annualPlanRows": { "type": "array" },
+        "scheduleHeader": { "type": "object" },
+        "schedules": { "type": "array" },
+        "checklistAssessments": { "type": "array" },
+        "capas": { "type": "array" },
+        "templateConfig": { "type": "object" },
+        "updatedBy": { "type": "string", "maxLength": 128 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "updatedAt"]
+    },
+    "ChecklistAssessment": {
+      "title": "ChecklistAssessment",
+      "description": "Assessment record for department internal quality audit (FM-QM-014)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "auditCycle": { "type": "string", "maxLength": 32 },
+        "departmentCode": { "type": "string", "maxLength": 32 },
+        "auditDate": { "type": "string", "maxLength": 32 },
+        "auditorName": { "type": "string", "maxLength": 128 },
+        "auditeeName": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["DRAFT", "COMPLETED"] },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "auditCycle", "departmentCode", "status"]
+    },
+    "CapaRecord": {
+      "title": "CapaRecord",
+      "description": "Corrective Action and Preventive Action record (CAR/PAR)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "type": { "type": "string", "enum": ["CAR", "PAR"] },
+        "severity": { "type": "string", "enum": ["MAJOR", "MINOR", "OBSERVATION"] },
+        "departmentCode": { "type": "string", "maxLength": 32 },
+        "causeCategory": { "type": "string", "maxLength": 64 },
+        "status": { "type": "string", "enum": ["OPEN", "IN_PROGRESS", "PENDING_VERIFICATION", "CLOSED", "OVERDUE"] },
+        "dueDate": { "type": "string", "maxLength": 32 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "type", "severity", "departmentCode", "status"]
+    }
+  },
+  "firestore": {
+    "/app_state/{stateId}": {
+      "schema": { "$ref": "entities/AuditState" },
+      "description": "Consolidated state document for real-time collaborative updates across Vercel deployments"
+    },
+    "/assessments/{assessmentId}": {
+      "schema": { "$ref": "entities/ChecklistAssessment" },
+      "description": "Detailed checklist assessments by audit cycle and department"
+    },
+    "/capas/{capaId}": {
+      "schema": { "$ref": "entities/CapaRecord" },
+      "description": "CAR/PAR records with root cause and 5-Why analysis"
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "entities/UserProfile" },
+      "description": "Auditor and Auditee user profiles and system permissions"
+    }
+  }
+}

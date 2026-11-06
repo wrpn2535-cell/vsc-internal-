@@ -1,0 +1,8 @@
+{
+  "name": "Vet Superior IQA Management System",
+  "description": "ระบบจัดการการตรวจติดตามคุณภาพภายใน บริษัท เวท ซุปพีเรีย คอนซัลแตนท์ จำกัด (โรงงาน: สมุทรสาคร) ครอบคลุมมาตรฐาน ISO 9001:2015, GHPs/HACCP กรมปศุสัตว์, และ FAMI-QS V.6",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

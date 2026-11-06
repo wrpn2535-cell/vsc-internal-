@@ -1,0 +1,68 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isVerifiedUser() && (
+        request.auth.token.email == 'wrpn2535@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // App State: Realtime sync document for Vercel & client web apps
+    match /app_state/{stateId} {
+      allow get: if isValidId(stateId);
+      allow list: if isSignedIn();
+      allow write: if isValidId(stateId);
+    }
+
+    // Checklist Assessments (FM-QM-014)
+    match /assessments/{assessmentId} {
+      allow get: if isValidId(assessmentId);
+      allow list: if isSignedIn();
+      allow create, update: if isValidId(assessmentId);
+      allow delete: if isAdmin();
+    }
+
+    // CAR / PAR Records
+    match /capas/{capaId} {
+      allow get: if isValidId(capaId);
+      allow list: if isSignedIn();
+      allow create, update: if isValidId(capaId);
+      allow delete: if isAdmin();
+    }
+
+    // User Profiles
+    match /users/{userId} {
+      allow get: if isValidId(userId);
+      allow list: if isSignedIn();
+      allow create, update: if isValidId(userId);
+      allow delete: if isAdmin();
+    }
+
+    // Admins registry
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}
